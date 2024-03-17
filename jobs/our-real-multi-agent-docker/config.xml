@@ -1,0 +1,126 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1308.v58d48a_763b_31">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2141.v5402e818a_779"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2141.v5402e818a_779">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description>This is for testing the jenkins backup push</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@3691.v28b_14c465a_b_b_">
+    <script>pipeline {
+    agent any
+    /*tools {
+        maven &apos;MAVEN3&apos;
+        jdk &apos;OracleJDK8&apos;
+    }
+
+   environment {
+    SNAP_REPO = &apos;vprofile-snapshot&apos;
+    NEXUS_USER = &apos;admin&apos;
+    NEXUS_PASS = &apos;sonar123&apos;
+    RELEASE_REPO = &apos;vprofile-release&apos;
+    NEXUS_GRP_REPO = &apos;vpro-maven-group&apos;
+    CENTRAL_REPO = &apos;vpro-maven-central&apos;
+    NEXUSPORT = &apos;8081&apos;
+    NEXUSIP = &apos;172.31.5.241&apos;
+    SONARSERVER = &apos;sonarserver&apos;
+    SONARSCANNER = &apos;sonarscanner&apos;
+    NEXUS_LOGIN = &apos;nexuslogin&apos;
+   } 
+*/
+   stages {
+    stage(&apos;build&apos;) {
+        agent {
+          docker {image &apos;maven:3.8.1-adoptopenjdk-11&apos;}
+       }   
+       steps {
+        sh &apos;mvn -s settings.xml -DskipTests install&apos;
+       }
+       post {
+          success {
+            echo &apos;now archiving&apos;
+            archiveArtifacts artifacts: &apos;**/*.war&apos;
+          }
+       }
+     }
+     stage(test){
+         agent { 
+           docker{image &apos;maven:3.8.1-adoptopenjdk-11&apos;}
+        }     
+        steps {
+            sh &quot;mvn -s settings.xml test&quot;
+        }       
+     }
+
+     stage(checkstyle){
+         agent {
+            docker {image &apos;maven:3.8.1-adoptopenjdk-11&apos;}
+    }
+        steps {
+            sh &quot;mvn -s settings.xml checkstyle:checkstyle&quot;
+        }
+     }
+
+/*        stage(&apos;Sonar Analysis&apos;) {
+            agent {image &apos;sonarqube&apos;}
+        }
+            {
+            environment {
+                scannerHome = tool &quot;${SONARSCANNER}&quot;
+            }
+            steps {
+               withSonarQubeEnv(&quot;${SONARSERVER}&quot;) {
+                   sh &apos;&apos;&apos;${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                   -Dsonar.projectName=vprofile \
+                   -Dsonar.projectVersion=1.0 \
+                   -Dsonar.sources=src/ \
+                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml&apos;&apos;&apos;
+              }
+            }
+        }
+
+        stage(&quot;Quality Gate&quot;) {
+            steps {
+              timeout(time: 1, unit: &apos;HOURS&apos;) {
+                waitForQualityGate abortPipeline: true
+              }
+            }
+        }
+
+        stage(&quot;UploadArtifact&quot;){
+            steps{
+                nexusArtifactUploader(
+                  nexusVersion: &apos;nexus3&apos;,
+                  protocol: &apos;http&apos;,
+                  nexusUrl: &quot;${NEXUSIP}:${NEXUSPORT}&quot;,
+                  groupId: &apos;QA&apos;,
+                  version: &quot;${env.BUILD_ID}-${env.BUILD_TIMESTAMP}&quot;,
+                  repository: &quot;${RELEASE_REPO}&quot;,
+                  credentialsId: &quot;${NEXUS_LOGIN}&quot;,
+                  artifacts: [
+                    [artifactId: &apos;vproapp&apos;,
+                     classifier: &apos;&apos;,
+                     file: &apos;target/vprofile-v2.war&apos;,
+                     type: &apos;war&apos;]
+                  ]
+                )
+            }
+        }
+*/        
+   }
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
