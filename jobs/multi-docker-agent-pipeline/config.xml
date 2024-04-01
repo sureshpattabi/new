@@ -9,7 +9,7 @@
       <options/>
     </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
   </actions>
-  <description>changes done description for testing</description>
+  <description>changes done description for testing again.</description>
   <displayName>Multi-agent</displayName>
   <keepDependencies>false</keepDependencies>
   <properties/>
